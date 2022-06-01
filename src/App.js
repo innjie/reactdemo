@@ -12,9 +12,9 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            mode:'welcome',
-            subject : {title: "WEB", sub: "World wide web!"},
-            welcome : {title: 'welcome', desc: 'Hello, React!!'},
+            mode: 'welcome',
+            subject: {title: "WEB", sub: "World wide web!"},
+            welcome: {title: 'welcome', desc: 'Hello, React!!'},
             contents: [
                 {id: 1, title: 'HTML', desc: 'HTML is for information'},
                 {id: 2, title: 'CSS', desc: 'CSS is for design'},
@@ -22,10 +22,11 @@ class App extends Component {
             ]
         }
     }
+
     render() {
         console.log('App render');
         var _title, _desc = null;
-        if(this.state.mode ==='welcome') {
+        if (this.state.mode === 'welcome') {
             _title = this.state.welcome.title;
             _desc = this.state.welcome.desc;
         } else if (this.state.mode === 'read') {
@@ -34,10 +35,21 @@ class App extends Component {
         }
         return (
             <div className="App">
-                <Subject title={this.state.subject.title} sub={this.state.subject.sub}></Subject>
-                <Subject title="React" sub="For UI"></Subject>
+                {/*<Subject title={this.state.subject.title} sub={this.state.subject.sub}></Subject>
+                <Subject title="React" sub="For UI"></Subject>*/}
+                <header>
+                    <h1><a href="/" onClick={function(e) {
+                        console.log(e);
+                        e.preventDefault();
+                        // this.state.mode = 'welcome';
+                        this.setState({
+                            mode : 'welcome'
+                        }); //bind : 객체를 강제로 넣는 메소드
+                    }.bind(this)}>{this.state.subject.title}</a></h1>
+                    {this.state.subject.sub}
+                </header>
                 <TOC data={this.state.contents}></TOC>
-                <Content title={_title} desc ={_desc}></Content>
+                <Content title={_title} desc={_desc}></Content>
             </div>
         );
     }
