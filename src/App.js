@@ -5,6 +5,7 @@ import ReadContent from "./component/ReadContent";
 import Subject from "./component/Subject";
 import Control from "./component/Control";
 import CreateContent from "./component/CreateContent";
+import UpdateContent from "./component/UpdateContent";
 
 class App extends Component {
     /**
@@ -26,26 +27,26 @@ class App extends Component {
             ]
         }
     }
-
-    render() {
-        console.log('App render');
+    getReadContent() {
+        var i = 0;
+        while (i < this.state.contents.length) {
+            var data = this.state.contents[i];
+            if (data.id === this.state.selected_content_id) {
+                return data;
+                break;
+            }
+            i++;
+        }
+    }
+    getContent() {
         var _title, _desc, _article = null;
         if (this.state.mode === 'welcome') {
             _title = this.state.welcome.title;
             _desc = this.state.welcome.desc;
             _article = <ReadContent title={_title} desc={_desc}></ReadContent>
         } else if (this.state.mode === 'read') {
-            var i = 0;
-            while (i < this.state.contents.length) {
-                var data = this.state.contents[i];
-                if (data.id === this.state.selected_content_id) {
-                    _title = data.title;
-                    _desc = data.desc;
-                    break;
-                }
-                i++;
-            }
-            _article = <ReadContent title={_title} desc={_desc}></ReadContent>
+            var _content = this.getReadContent();
+            _article = <ReadContent title={_content.title} desc={_content.desc}></ReadContent>
         } else if (this.state.mode === 'create') {
             _article = <CreateContent onSubmit={function (_title, _desc) {
                 this.max_content_id = this.max_content_id + 1;
@@ -80,7 +81,47 @@ class App extends Component {
 
                 console.log(_title, _desc);
             }.bind(this)}></CreateContent>
+        } else if (this.state.mode === 'update') {
+            _content = this.getReadContent();
+            _article = <UpdateContent data = {_content} onSubmit={function (_title, _desc) {
+                this.max_content_id = this.max_content_id + 1;
+                this.state.contents.push(
+                    {id: this.max_content_id, title: _title, desc: _desc}
+                );
+                // this.setState({
+                //     contents: this.state.contents
+                // });
+
+                //1. 새 기존 객체에 새 객체를 넣는 방식
+                var _contents = this.state.contents.concat({
+                    id : this.max_content_id,
+                    title : _title,
+                    desc : _desc
+                });
+
+                //2. 기존 배열 복사 + 새 객체 넣어 바꾸는 방식
+                var newContents = Array.from(this.state.contents);
+                newContents.push({id : this.max_content_id, title : _title, desc : _desc});
+                this.setState ({
+                    contents : newContents
+                })
+
+                /**
+                 * push : 원본 변경, concat : 복사본을 변경
+                 * -> immutable로 불변 속성을 갖고, 유사 객체를 제어할 수 있다.
+                 * 원본 객체의 복사본을 바꾼 결과를 return한다.
+                 */
+
+                //add content to this.state.contents
+
+                console.log(_title, _desc);
+            }.bind(this)}></UpdateContent>
         }
+        return _article;
+    }
+    render() {
+        console.log('App render');
+
         return (
             <div className="App">
                 <Subject
@@ -121,7 +162,7 @@ class App extends Component {
                     });
 
                 }.bind(this)}></Control>
-                {_article}
+                {this.getContent()}
             </div>
         );
     }
