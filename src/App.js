@@ -27,6 +27,7 @@ class App extends Component {
             ]
         }
     }
+
     getReadContent() {
         var i = 0;
         while (i < this.state.contents.length) {
@@ -38,6 +39,7 @@ class App extends Component {
             i++;
         }
     }
+
     getContent() {
         var _title, _desc, _article = null;
         if (this.state.mode === 'welcome') {
@@ -59,16 +61,18 @@ class App extends Component {
 
                 //1. 새 기존 객체에 새 객체를 넣는 방식
                 var _contents = this.state.contents.concat({
-                    id : this.max_content_id,
-                    title : _title,
-                    desc : _desc
+                    id: this.max_content_id,
+                    title: _title,
+                    desc: _desc
                 });
 
                 //2. 기존 배열 복사 + 새 객체 넣어 바꾸는 방식
                 var newContents = Array.from(this.state.contents);
-                newContents.push({id : this.max_content_id, title : _title, desc : _desc});
-                this.setState ({
-                    contents : newContents
+                newContents.push({id: this.max_content_id, title: _title, desc: _desc});
+                this.setState({
+                    contents: newContents,
+                    mode : 'read',
+                    selected_content_id : this.max_content_id
                 })
 
                 /**
@@ -77,48 +81,38 @@ class App extends Component {
                  * 원본 객체의 복사본을 바꾼 결과를 return한다.
                  */
 
-                //add content to this.state.contents
 
                 console.log(_title, _desc);
             }.bind(this)}></CreateContent>
         } else if (this.state.mode === 'update') {
             _content = this.getReadContent();
-            _article = <UpdateContent data = {_content} onSubmit={function (_title, _desc) {
-                this.max_content_id = this.max_content_id + 1;
-                this.state.contents.push(
-                    {id: this.max_content_id, title: _title, desc: _desc}
-                );
-                // this.setState({
-                //     contents: this.state.contents
-                // });
+            _article = <UpdateContent data={_content} onSubmit={
+                function (_id, _title, _desc) {
+                    var _contents = Array.from(this.state.contents);
 
-                //1. 새 기존 객체에 새 객체를 넣는 방식
-                var _contents = this.state.contents.concat({
-                    id : this.max_content_id,
-                    title : _title,
-                    desc : _desc
-                });
+                    var i = 0;
+                    while (i < _contents.length) {
+                        if (_contents[i].id === _id) {
+                            _contents[i] = {
+                                id: _id,
+                                title: _title,
+                                desc: _desc
+                            }
+                            break;
 
-                //2. 기존 배열 복사 + 새 객체 넣어 바꾸는 방식
-                var newContents = Array.from(this.state.contents);
-                newContents.push({id : this.max_content_id, title : _title, desc : _desc});
-                this.setState ({
-                    contents : newContents
-                })
-
-                /**
-                 * push : 원본 변경, concat : 복사본을 변경
-                 * -> immutable로 불변 속성을 갖고, 유사 객체를 제어할 수 있다.
-                 * 원본 객체의 복사본을 바꾼 결과를 return한다.
-                 */
-
-                //add content to this.state.contents
-
-                console.log(_title, _desc);
-            }.bind(this)}></UpdateContent>
+                            i = i + 1;
+                        }
+                    }
+                    this.setState({
+                        contents : _contents,
+                        mode : 'read'
+                    });
+                    console.log(_title, _desc);
+                }.bind(this)}></UpdateContent>
         }
         return _article;
     }
+
     render() {
         console.log('App render');
 
@@ -157,9 +151,30 @@ class App extends Component {
                     }.bind(this)}
                 ></TOC>
                 <Control onChangeMode={function (_mode) {
-                    this.setState({
-                        mode: _mode
-                    });
+                    if(_mode === 'delete') {
+                        if(window.confirm('delete')) {
+                            var i = 0;
+                            while( i < this.state.contents.length) {
+                                var _contents = Array.from(this.state.contents);
+                                if(_contents[i].id === this.state.selected_content_id) {
+                                    //i 부터 1개 삭제
+                                    _contents.splice(i, 1);
+                                    break;
+                                }
+                                i = i + 1;
+                            }
+                            this.setState({
+                                mode : 'welcome',
+                                contents : _contents
+                            })
+                            alert("deleted");
+                        }
+                    } else {
+                        this.setState({
+                            mode: _mode
+                        });
+                    }
+
 
                 }.bind(this)}></Control>
                 {this.getContent()}

@@ -27,8 +27,9 @@ class UpdateContent extends Component {
                       onSubmit={function (e) {
                           e.preventDefault();
                           this.props.onSubmit(
-                              e.target.title.value,
-                              e.target.desc.value
+                              this.state.id,
+                              this.state.title,
+                              this.state.desc
                           );
                           debugger;
                           alert("Submit");
